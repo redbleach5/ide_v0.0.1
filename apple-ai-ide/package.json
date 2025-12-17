@@ -1,0 +1,97 @@
+{
+  "name": "ai-ide",
+  "version": "1.0.0",
+  "description": "AI IDE with local model integration",
+  "main": "public/electron.js",
+  "homepage": "./",
+  "scripts": {
+    "start": "BROWSER=none react-scripts start",
+    "build": "react-scripts build",
+    "postbuild": "node -e \"const fs=require('fs');const path=require('path');['electron.js','preload.js'].forEach(f=>{const src=path.join('public',f);const dest=path.join('build',f);if(fs.existsSync(src))fs.copyFileSync(src,dest);});\"",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "dev": "npx concurrently \"npm start\" \"npx wait-on http://localhost:3000 && npx electron .\"",
+    "browser": "BROWSER=default react-scripts start",
+    "electron": "electron .",
+    "electron-dev": "npx concurrently \"npm start\" \"npx wait-on http://localhost:3000 && npx electron .\"",
+    "electron-pack": "npm run build && electron-builder",
+    "preelectron-pack": "npm run build",
+    "reinstall": "powershell -ExecutionPolicy Bypass -File ./reinstall-deps.ps1",
+    "rebuild-native": "electron-rebuild -f -w node-pty",
+    "postinstall": "electron-rebuild -f -w node-pty || echo 'Warning: electron-rebuild failed. Terminal may not work. Run npm run rebuild-native manually if needed.'"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.6.0",
+    "@radix-ui/react-dialog": "^1.0.5",
+    "@radix-ui/react-dropdown-menu": "^2.0.6",
+    "@radix-ui/react-select": "^2.0.0",
+    "@radix-ui/react-tabs": "^1.0.4",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "axios": "^1.6.2",
+    "chokidar": "^3.5.3",
+    "dompurify": "^3.1.6",
+    "electron": "^39.2.7",
+    "electron-builder": "^24.9.1",
+    "framer-motion": "^10.16.16",
+    "highlight.js": "^11.9.0",
+    "lucide-react": "^0.303.0",
+    "markdown-it": "^13.0.2",
+    "monaco-editor": "^0.45.0",
+    "node-pty": "^1.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-resizable-panels": "^0.0.63",
+    "react-scripts": "^5.0.1"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^4.0.2",
+    "@types/markdown-it": "^13.0.9",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "concurrently": "^8.2.2",
+    "typescript": "^4.9.5",
+    "wait-on": "^7.2.0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "build": {
+    "appId": "com.aide.ide",
+    "productName": "AI IDE",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "extraMetadata": {
+      "main": "build/electron.js"
+    },
+    "mac": {
+      "category": "public.app-category.developer-tools"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}

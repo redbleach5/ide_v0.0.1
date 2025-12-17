@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="AI IDE with local model integration" />
+    <!-- Content Security Policy - relaxed for development, can be tightened for production -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com data: https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' http://localhost:* ws://localhost:* wss://localhost:* https://cdn.jsdelivr.net; worker-src 'self' blob:;" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- System Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <title>AI IDE</title>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow: hidden;
+        }
+        
+        code {
+            font-family: 'SF Mono', Monaco, 'Inconsolata', 'Roboto Mono', 'Source Code Pro', monospace;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        #root {
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        /* Loading screen */
+        .loading-container {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+            color: #1d1d1f;
+        }
+        
+        .loading-logo {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .loading-text {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .loading-subtitle {
+            font-size: 13px;
+            color: #86868b;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+        
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007AFF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Dark mode loading screen */
+        @media (prefers-color-scheme: dark) {
+            .loading-container {
+                background-color: #1c1c1e;
+                color: #f5f5f7;
+            }
+            
+            .loading-subtitle {
+                color: #98989d;
+            }
+        }
+    </style>
+</head>
+<body>
+    <noscript>Для работы приложения необходимо включить JavaScript.</noscript>
+    
+    <div id="root">
+        <!-- Loading screen -->
+        <div class="loading-container">
+            <div class="loading-logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 3L5 7L9 11" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15 21L19 17L15 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M5 7H19" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M5 17H19" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+            <div class="loading-text">AI IDE</div>
+            <div class="loading-subtitle">Загрузка среды разработки...</div>
+            <div class="spinner" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Check if running in Electron
+        if (window.electronAPI) {
+            console.log('Running in Electron environment');
+        }
+        
+        // Set initial theme based on system preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (prefersDark) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+        
+        // Listen for theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+            if (e.matches) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+        });
+    </script>
+</body>
+</html>

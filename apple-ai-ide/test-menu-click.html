@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест клика меню</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background: #007acc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #005a9e;
+        }
+        #output {
+            background: #252526;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .error {
+            color: #f48771;
+        }
+        .success {
+            color: #4ec9b0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Диагностика меню "Новый проект"</h1>
+    <p>Этот скрипт соберет информацию о проблеме с меню.</p>
+    
+    <button onclick="runDiagnostics()">Запустить диагностику</button>
+    <button onclick="clearOutput()">Очистить вывод</button>
+    <button onclick="copyOutput()">Копировать вывод</button>
+    
+    <div id="output"></div>
+
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = message;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearOutput() {
+            output.innerHTML = '';
+        }
+        
+        function copyOutput() {
+            const text = output.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Вывод скопирован в буфер обмена!');
+            });
+        }
+        
+        async function runDiagnostics() {
+            clearOutput();
+            log('=== НАЧАЛО ДИАГНОСТИКИ ===\n', 'info');
+            
+            // 1. Базовая информация
+            log('1. Информация о среде:', 'info');
+            log(`   Platform: ${navigator.platform}`, 'info');
+            log(`   Electron API: ${typeof window.electronAPI !== 'undefined' ? '✓ Доступен' : '✗ Недоступен'}`, 
+                typeof window.electronAPI !== 'undefined' ? 'success' : 'error');
+            
+            if (window.electronAPI) {
+                log(`   Методы: ${Object.keys(window.electronAPI).join(', ')}`, 'info');
+            }
+            
+            await sleep(100);
+            
+            // 2. Поиск элементов меню
+            log('\n2. Поиск элементов меню:', 'info');
+            const menuButtons = document.querySelectorAll('[data-menu-button]');
+            log(`   Кнопок меню найдено: ${menuButtons.length}`, 'info');
+            
+            const fileMenuButton = Array.from(menuButtons).find(btn => {
+                const icon = btn.querySelector('svg');
+                return icon || btn.textContent?.includes('Файл');
+            });
+            
+            if (fileMenuButton) {
+                log('   ✓ Кнопка "Файл" найдена', 'success');
+                log(`   Класс: ${fileMenuButton.className}`, 'info');
+                
+                // Проверка React
+                const reactKey = Object.keys(fileMenuButton).find(k => k.startsWith('__reactFiber'));
+                if (reactKey) {
+                    log('   ✓ React компонент найден', 'success');
+                }
+            } else {
+                log('   ✗ Кнопка "Файл" не найдена', 'error');
+            }
+            
+            await sleep(100);
+            
+            // 3. Проверка выпадающего меню
+            log('\n3. Проверка выпадающего меню:', 'info');
+            const dropdown = document.querySelector('[data-menu-dropdown]');
+            if (dropdown) {
+                log('   ✓ Выпадающее меню найдено', 'success');
+                const items = dropdown.querySelectorAll('button');
+                log(`   Элементов меню: ${items.length}`, 'info');
+                
+                const newProjectItem = Array.from(items).find(item => 
+                    item.textContent?.includes('Новый проект')
+                );
+                
+                if (newProjectItem) {
+                    log('   ✓ Элемент "Новый проект" найден', 'success');
+                    log(`   Текст: ${newProjectItem.textContent.trim()}`, 'info');
+                } else {
+                    log('   ✗ Элемент "Новый проект" не найден', 'error');
+                }
+            } else {
+                log('   ✗ Выпадающее меню не найдено (закрыто)', 'error');
+            }
+            
+            await sleep(100);
+            
+            // 4. Симуляция клика
+            if (fileMenuButton) {
+                log('\n4. Симуляция клика на кнопку "Файл":', 'info');
+                log('   Отправка события click...', 'info');
+                
+                const clickEvent = new MouseEvent('click', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window,
+                    button: 0
+                });
+                
+                fileMenuButton.dispatchEvent(clickEvent);
+                
+                await sleep(500);
+                
+                const dropdownAfter = document.querySelector('[data-menu-dropdown]');
+                if (dropdownAfter) {
+                    log('   ✓ Меню открылось', 'success');
+                    
+                    const newProjectBtn = Array.from(dropdownAfter.querySelectorAll('button')).find(btn => 
+                        btn.textContent?.includes('Новый проект')
+                    );
+                    
+                    if (newProjectBtn) {
+                        log('\n5. Симуляция клика на "Новый проект":', 'info');
+                        log('   Отправка события click...', 'info');
+                        
+                        const newProjectClick = new MouseEvent('click', {
+                            bubbles: true,
+                            cancelable: true,
+                            view: window,
+                            button: 0
+                        });
+                        
+                        newProjectBtn.dispatchEvent(newProjectClick);
+                        
+                        await sleep(500);
+                        
+                        const dialogAfter = Array.from(document.querySelectorAll('*')).find(el => 
+                            el.textContent?.includes('Создать новый проект')
+                        );
+                        
+                        if (dialogAfter) {
+                            log('   ✓ Диалог открыт', 'success');
+                        } else {
+                            log('   ✗ Диалог не открылся', 'error');
+                        }
+                    } else {
+                        log('   ✗ Элемент "Новый проект" не найден', 'error');
+                    }
+                } else {
+                    log('   ✗ Меню не открылось', 'error');
+                }
+            }
+            
+            log('\n=== КОНЕЦ ДИАГНОСТИКИ ===', 'info');
+            log('\n📋 Нажмите "Копировать вывод" и предоставьте результат', 'info');
+        }
+        
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Тест меню</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            background: #007acc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #005a9e;
+        }
+        #result {
+            background: #252526;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Тест меню "Новый проект"</h1>
+    <p>Этот скрипт проверит работу меню в приложении.</p>
+    <p><strong>Инструкция:</strong></p>
+    <ol>
+        <li>Откройте приложение в Electron</li>
+        <li>Откройте DevTools (F12)</li>
+        <li>Скопируйте код из поля ниже</li>
+        <li>Вставьте в консоль DevTools</li>
+    </ol>
+    
+    <textarea id="code" style="width: 100%; height: 200px; font-family: monospace; font-size: 12px; padding: 10px; background: #252526; color: #d4d4d4; border: 1px solid #444;">
+const btn = document.querySelector('[data-menu-button]');
+console.log('=== ТЕСТ МЕНЮ ===');
+console.log('1. Кнопка найдена:', !!btn);
+
+if (btn) {
+  btn.click();
+  setTimeout(() => {
+    const menu = document.querySelector('[data-menu-dropdown]');
+    console.log('2. Меню открыто:', !!menu);
+    
+    if (menu) {
+      const items = menu.querySelectorAll('button');
+      const newProject = Array.from(items).find(b => 
+        b.textContent && b.textContent.includes('Новый проект')
+      );
+      console.log('3. "Новый проект" найден:', !!newProject);
+      
+      if (newProject) {
+        console.log('4. Кликаю на "Новый проект"...');
+        newProject.click();
+        
+        setTimeout(() => {
+          const dialog = Array.from(document.querySelectorAll('*')).find(el => 
+            el.textContent && el.textContent.includes('Создать новый проект')
+          );
+          console.log('5. Диалог открыт:', !!dialog);
+          
+          if (!dialog) {
+            console.log('\n⚠️ Диалог не открылся!');
+            console.log('Проверьте консоль на наличие:');
+            console.log('- "=== Новый проект ACTION CALLED ==="');
+            console.log('- "=== handleNewProject CALLED ==="');
+            console.log('- Ошибок (красные сообщения)');
+          } else {
+            console.log('✅ Диалог успешно открыт!');
+          }
+        }, 1000);
+      }
+    }
+  }, 500);
+} else {
+  console.error('❌ Кнопка меню не найдена!');
+}
+</textarea>
+    
+    <div>
+        <button onclick="copyCode()">Копировать код</button>
+        <button onclick="runTest()">Запустить тест (если открыто в приложении)</button>
+    </div>
+    
+    <div id="result"></div>
+
+    <script>
+        function copyCode() {
+            const code = document.getElementById('code');
+            code.select();
+            document.execCommand('copy');
+            alert('Код скопирован! Теперь вставьте его в консоль DevTools.');
+        }
+        
+        function runTest() {
+            // Этот код будет работать только если открыт в том же окне, что и приложение
+            const result = document.getElementById('result');
+            result.textContent = 'Запуск теста...\n';
+            
+            try {
+                const btn = document.querySelector('[data-menu-button]');
+                result.textContent += 'Кнопка найдена: ' + !!btn + '\n';
+                
+                if (btn) {
+                    btn.click();
+                    setTimeout(() => {
+                        const menu = document.querySelector('[data-menu-dropdown]');
+                        result.textContent += 'Меню открыто: ' + !!menu + '\n';
+                        
+                        if (menu) {
+                            const items = menu.querySelectorAll('button');
+                            const newProject = Array.from(items).find(b => 
+                                b.textContent && b.textContent.includes('Новый проект')
+                            );
+                            result.textContent += '"Новый проект" найден: ' + !!newProject + '\n';
+                            
+                            if (newProject) {
+                                newProject.click();
+                                setTimeout(() => {
+                                    const dialog = Array.from(document.querySelectorAll('*')).find(el => 
+                                        el.textContent && el.textContent.includes('Создать новый проект')
+                                    );
+                                    result.textContent += 'Диалог открыт: ' + !!dialog + '\n';
+                                }, 1000);
+                            }
+                        }
+                    }, 500);
+                }
+            } catch (e) {
+                result.textContent += 'Ошибка: ' + e.message + '\n';
+                result.textContent += 'Откройте этот файл в том же окне, что и приложение, или используйте код выше в консоли DevTools.\n';
+            }
+        }
+    </script>
+</body>
+</html>
