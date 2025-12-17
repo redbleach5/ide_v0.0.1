@@ -53,19 +53,12 @@ export const MenuBarSimple: React.FC<MenuBarProps> = ({
           shortcut: `${cmdKey}N`, 
           icon: FolderOpen, 
           action: () => {
-            console.log('=== Новый проект ACTION CALLED ===');
-            console.log('onNewProject exists:', !!onNewProject);
-            console.log('onNewProject type:', typeof onNewProject);
             if (onNewProject) {
-              console.log('Calling onNewProject...');
               try {
-                const result = onNewProject();
-                console.log('onNewProject returned:', result);
+                onNewProject();
               } catch (error) {
                 console.error('Error calling onNewProject:', error);
               }
-            } else {
-              console.error('onNewProject callback is NOT PROVIDED!');
             }
           } 
         },
@@ -74,8 +67,6 @@ export const MenuBarSimple: React.FC<MenuBarProps> = ({
           shortcut: `${cmdKey}O`, 
           icon: FolderOpen, 
           action: () => {
-            console.log('Открыть проект clicked, calling onOpenProject');
-            // Вызываем onOpenProject - он должен сам открыть диалог в Electron или обработать иначе
             try {
               onOpenProject();
             } catch (error) {
@@ -279,11 +270,8 @@ export const MenuBarSimple: React.FC<MenuBarProps> = ({
   ];
 
   const handleMenuClick = (menuId: string, event: React.MouseEvent<HTMLButtonElement>) => {
-    console.log('handleMenuClick called:', menuId, 'current activeMenu:', activeMenu); // Отладка
-    
     if (activeMenu === menuId) {
       // Если меню уже открыто, закрываем его
-      console.log('Closing menu');
       menuOpenedTimeRef.current = 0; // Сбрасываем время открытия
       setActiveMenu(null);
       setMenuPosition(null);
@@ -296,37 +284,11 @@ export const MenuBarSimple: React.FC<MenuBarProps> = ({
           left: rect.left,
           top: rect.bottom + 2
         };
-        console.log('Opening menu at position:', position);
         setMenuPosition(position);
         setActiveMenu(menuId);
         // Запоминаем время открытия меню
         menuOpenedTimeRef.current = Date.now();
-        console.log('Menu opened at time:', menuOpenedTimeRef.current); // Отладка
-        
-        // Проверяем, что меню действительно появилось в DOM через небольшую задержку
-        setTimeout(() => {
-          const menuElement = document.querySelector('[data-menu-dropdown]');
-          if (menuElement) {
-            const style = window.getComputedStyle(menuElement);
-            console.log('Menu element found in DOM:', {
-              display: style.display,
-              visibility: style.visibility,
-              opacity: style.opacity,
-              zIndex: style.zIndex,
-              pointerEvents: style.pointerEvents
-            });
-          } else {
-            console.error('Menu element NOT found in DOM!');
-          }
-        }, 100);
-        
-        // Предотвращаем немедленное закрытие меню overlay'ем
-        // Используем небольшой флаг времени
-        setTimeout(() => {
-          // Меню открыто, теперь можно обрабатывать клики вне
-        }, 50);
       } else {
-        console.warn('Button ref not found for menu:', menuId);
         // Всё равно открываем меню с дефолтной позицией
         setMenuPosition({
           left: 80 + macTrafficLightsWidth,
@@ -340,13 +302,8 @@ export const MenuBarSimple: React.FC<MenuBarProps> = ({
   // Эта функция больше не используется напрямую, но оставлена для совместимости
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleMenuItemClick = (action: () => void) => {
-    console.log('handleMenuItemClick called, executing action'); // Отладка
-    
-    // Сначала выполняем действие СРАЗУ
     try {
-      console.log('Executing menu action immediately'); // Отладка
       action();
-      console.log('Action executed successfully'); // Отладка
     } catch (error) {
       console.error('Error in menu action:', error);
     }
@@ -435,7 +392,6 @@ export const MenuBarSimple: React.FC<MenuBarProps> = ({
                     if (el && !(el as any).__menuClickHandler) {
                       const clickHandler = (e: Event) => {
                         e.stopPropagation();
-                        console.log('DIRECT Menu button clicked:', menu.id); // Отладка
                         handleMenuClick(menu.id, e as any);
                       };
                       el.addEventListener('click', clickHandler);
@@ -463,7 +419,6 @@ export const MenuBarSimple: React.FC<MenuBarProps> = ({
                   } as React.CSSProperties}
                   onClick={(e) => {
                     e.stopPropagation(); // Останавливаем всплытие, но не preventDefault
-                    console.log('React onClick Menu button clicked:', menu.id); // Отладка
                     handleMenuClick(menu.id, e);
                   }}
                   onMouseEnter={(e) => {
@@ -511,11 +466,9 @@ export const MenuBarSimple: React.FC<MenuBarProps> = ({
               }}
               onClick={(e) => {
                 e.stopPropagation();
-                console.log('Menu dropdown container clicked, target:', e.target); // Отладка
               }}
               onMouseDown={(e) => {
                 // НЕ останавливаем всплытие - пусть события доходят до элементов меню
-                console.log('Menu dropdown mousedown, target:', e.target); // Отладка
               }}
             >
               {menuItems
@@ -556,39 +509,31 @@ export const MenuBarSimple: React.FC<MenuBarProps> = ({
                         zIndex: 1002, // Выше чем меню и overlay
                       }}
                       onMouseEnter={(e) => {
-                        console.log('Menu item mouseenter:', item.label); // Отладка
                         e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
                       }}
                       onMouseLeave={(e) => {
-                        console.log('Menu item mouseleave:', item.label); // Отладка
                         e.currentTarget.style.backgroundColor = 'transparent';
                       }}
                       onMouseDown={(e) => {
                         // Обрабатываем mousedown для более быстрой реакции
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('Menu item mousedown:', item.label, 'target:', e.target); // Отладка
                       }}
                       onMouseUp={(e) => {
                         // Также обрабатываем mouseup для надежности
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('Menu item mouseup:', item.label); // Отладка
                       }}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        console.log('Menu item clicked:', item.label, 'action exists:', 'action' in item, 'target:', e.target); // Отладка
                         if ('action' in item && item.action) {
-                          console.log('Calling action for:', item.label); // Отладка
                           // Выполняем действие синхронно, но закрываем меню асинхронно
                           try {
                             // Вызываем действие сразу
                             item.action();
-                            console.log('Action executed for:', item.label); // Отладка
                             // Закрываем меню после небольшой задержки
                             requestAnimationFrame(() => {
-                              console.log('Closing menu after action'); // Отладка
                               setActiveMenu(null);
                               setMenuPosition(null);
                             });
@@ -599,7 +544,6 @@ export const MenuBarSimple: React.FC<MenuBarProps> = ({
                             setMenuPosition(null);
                           }
                         } else {
-                          console.warn('No action found for menu item:', item.label);
                           setActiveMenu(null);
                           setMenuPosition(null);
                         }

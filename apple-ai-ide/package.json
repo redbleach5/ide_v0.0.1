@@ -1,9 +1,35 @@
 {
   "name": "ai-ide",
   "version": "1.0.0",
-  "description": "AI IDE with local model integration",
+  "description": "AI-powered интегрированная среда разработки с поддержкой локальных LLM моделей",
   "main": "public/electron.js",
   "homepage": "./",
+  "author": "AI IDE Contributors",
+  "license": "MIT",
+  "keywords": [
+    "ide",
+    "editor",
+    "ai",
+    "llm",
+    "ollama",
+    "lm-studio",
+    "code-editor",
+    "monaco-editor",
+    "electron",
+    "typescript",
+    "rag",
+    "semantic-search",
+    "code-completion",
+    "debugger",
+    "git-integration"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/ai-ide.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/ai-ide/issues"
+  },
   "scripts": {
     "start": "BROWSER=none react-scripts start",
     "build": "react-scripts build",

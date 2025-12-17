@@ -382,7 +382,13 @@ export class AIService {
         clearTimeout(timeoutId);
         controller.abort();
       };
-      abortSignal.addEventListener('abort', abortHandler);
+      // Use onabort property (standard way) or addEventListener if available
+      // AbortSignal should support addEventListener in modern browsers, but fallback to onabort
+      if (abortSignal && typeof abortSignal.addEventListener === 'function') {
+        abortSignal.addEventListener('abort', abortHandler);
+      } else if (abortSignal && 'onabort' in abortSignal) {
+        abortSignal.onabort = abortHandler;
+      }
     }
 
     try {
@@ -393,14 +399,22 @@ export class AIService {
       clearTimeout(timeoutId);
       // Clean up abort handler
       if (abortSignal && abortHandler) {
-        abortSignal.removeEventListener('abort', abortHandler);
+        if (typeof abortSignal.removeEventListener === 'function') {
+          abortSignal.removeEventListener('abort', abortHandler);
+        } else {
+          abortSignal.onabort = null;
+        }
       }
       return response;
     } catch (error) {
       clearTimeout(timeoutId);
       // Clean up abort handler
       if (abortSignal && abortHandler) {
-        abortSignal.removeEventListener('abort', abortHandler);
+        if (typeof abortSignal.removeEventListener === 'function') {
+          abortSignal.removeEventListener('abort', abortHandler);
+        } else {
+          abortSignal.onabort = null;
+        }
       }
       if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('aborted'))) {
         if (abortSignal?.aborted) {

@@ -247,9 +247,16 @@ Provide a concise, natural continuation of the code.`;
 
         // Combine abort signals
         if (abortSignal) {
-          abortSignal.addEventListener('abort', () => {
+          const abortHandler = () => {
             controller.abort();
-          });
+          };
+          // Use onabort property (standard way) or addEventListener if available
+          // AbortSignal should support addEventListener in modern browsers, but fallback to onabort
+          if (typeof abortSignal.addEventListener === 'function') {
+            abortSignal.addEventListener('abort', abortHandler);
+          } else if ('onabort' in abortSignal) {
+            abortSignal.onabort = abortHandler;
+          }
         }
 
         try {

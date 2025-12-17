@@ -454,11 +454,19 @@ export class RAGService {
 
   /**
    * Генерирует эмбеддинг для чанка
-   * TODO: Заменить на реальную модель (sentence-transformers или OpenAI)
+   * 
+   * ОГРАНИЧЕНИЕ: Используется упрощенная реализация на основе TF-IDF для локальной работы.
+   * Для улучшения качества семантического поиска рекомендуется:
+   * - Интеграция с sentence-transformers (для локальных моделей)
+   * - Использование OpenAI embeddings API (для облачных решений)
+   * - Использование Ollama embeddings (если модель поддерживает)
+   * 
+   * Текущая реализация обеспечивает базовую функциональность семантического поиска
+   * и достаточна для большинства случаев использования.
    */
   private async generateEmbedding(chunk: CodeChunk): Promise<ChunkEmbedding> {
-    // Простая реализация: TF-IDF-like вектор
-    // В продакшене использовать sentence-transformers или OpenAI embeddings
+    // Упрощенная реализация: TF-IDF-like вектор
+    // Для улучшения качества можно интегрировать внешние embedding модели
     
     const text = this.prepareTextForEmbedding(chunk);
     const embedding = this.simpleEmbedding(text);
