@@ -45,3 +45,10 @@ coverage/
 *.tmp
 *.temp
 .cache/
+
+# Diagnostic and test files (should not be committed)
+*diagnose*.js
+*test*.html
+*test*.js
+*_ТЕСТ.txt
+*_ДИАГНОСТИКА.txt
